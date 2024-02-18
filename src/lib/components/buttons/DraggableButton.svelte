@@ -1,5 +1,8 @@
 <script lang="ts">
 	export let className: string = '';
+	export let isDisabled$: boolean;
+	export let onSwiped: () => void = () => {};
+	export let onClick: () => void = () => {};
 
 	let dragComponent: HTMLButtonElement | null = null;
 	let isDragging$: boolean = false,
@@ -14,6 +17,7 @@
 			currentTarget: EventTarget & HTMLButtonElement;
 		}
 	) => {
+		if (isDisabled$) return;
 		isDragging$ = true;
 		initialX = event.clientX;
 		dragComponent?.addEventListener('mousemove', onMouseMove);
@@ -39,6 +43,7 @@
 			currentTarget: EventTarget & HTMLButtonElement;
 		}
 	) => {
+		if (isDisabled$) return;
 		isDragging$ = true;
 		initialX = event.touches[0].clientX;
 		dragComponent?.addEventListener('touchmove', onTouchMove);
@@ -59,10 +64,13 @@
 	//#endregion
 
 	const validateThreshold = () => {
-		isPassedThreshold$ = deltaX$ < -(containerWidth / 2.5);
+		isPassedThreshold$ = Math.abs(deltaX$) > containerWidth / 2.5;
 	};
 
 	const cleanUpEvent = () => {
+		if (isPassedThreshold$) {
+			onSwiped();
+		}
 		deltaX$ = 0;
 		isPassedThreshold$ = false;
 	};
@@ -76,6 +84,7 @@
 		? 'opacity-70'
 		: ''}"
 	bind:clientWidth={containerWidth}
+	on:click={onClick}
 	on:mousedown={onMouseDown}
 	on:mouseup={onMouseUp}
 	on:touchstart={onTouchStart}

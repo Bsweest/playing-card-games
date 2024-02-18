@@ -2,5 +2,6 @@
 	export type PlayerEntity = {
 		name: string;
 		point: number;
+		isCanceled: boolean;
 	};
 </script>
